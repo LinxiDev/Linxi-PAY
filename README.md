@@ -26,3 +26,5 @@ Linxi-PAY 是一个基于微信赞赏码的支付接口平台。它提供了一�
 如有任何疑问或需要帮助，请随时通过 admin@linxi.tk 联系我们的支持团队。
 
 立即开始使用 Linxi-PAY，改变您的支付体验！🌟
+# 💖 赞赏
+<img src="https://github.com/linxi-520/LinxiPush/blob/main/img/yzsm.png" height="232" width="336">
