@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Element Plus 林夕科技赞赏码</title>
+    <!-- 引入 Element Plus 的 CSS 文件 -->
+    <link href="static/css/element-plus.css" rel="stylesheet">
+    <!-- 引入 Vue 3 和 Element Plus 的 JavaScript 文件 -->
+    <script src="static/js/vue.js"></script>
+    <script src="static/js/zh-cn.js"></script>
+    <script src="static/js/icons-vue.js"></script>
+    <script src="static/js/axios.min.js"></script>
+    <script src="static/js/element-plus.js"></script>
+    <style>
+        .flex-grow {
+            flex-grow: 1;
+        }
+
+        .payment-container {
+            background-color: #fff;
+            margin: 0 auto;
+            /* 水平居中 */
+            margin-top: 10px;
+            /* 为导航栏留出空间 */
+            display: flex;
+            /* 使用Flexbox布局 */
+            flex-direction: column;
+            /* 垂直方向排列 */
+            align-items: center;
+            /* 居中对齐 */
+            justify-content: center;
+            /* 居中对齐 */
+        }
+
+        .artistic-title {
+            font-family: 'Arial Black', sans-serif;
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .content {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 70vh;
+            /* 使容器至少填满视口高度 */
+        }
+
+        .center {
+            justify-content: center;
+            line-height: 1.6;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .content h2 {
+            color: #333;
+        }
+
+        .content p {
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="common-layout">
+            <el-container>
+                <el-header>
+                    <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" :ellipsis="false"
+                        @select="Views">
+                        <el-menu-item index="0">
+                            <img style="width: 100px" src="static/images/element-plus-logo.svg" alt="Element logo" />
+                        </el-menu-item>
+                        <div class="flex-grow"></div>
+                        <el-menu-item index="1" @click="PaymentTest">支付测试</el-menu-item>
+                        <el-menu-item index="2" @click="PaymentList">支付列表</el-menu-item>
+                        <el-menu-item index="3">关于项目</el-menu-item>
+                    </el-menu>
+                </el-header>
+                <el-main>
+                    <div v-if="Visibles[0]" class="new-element">
+                        <div class="content center">
+                            <img style="width: 400px" src="static/images/logo.svg"/>
+                            <h2>欢迎来到林夕科技赞赏码支付</h2>
+                            <p>在这里，您可以找到关于我们产品的详细信息和教程。我们致力于提供简单明了的文档，以帮助您快速上手并了解我们的产品。</p>
+                            <p>请使用上方的导航菜单浏览我们的文档，如果您有任何疑问或需要帮助，请随时联系我们。</p>
+                        </div>
+                    </div>
+                    <div v-if="Visibles[1]" class="new-element">
+                        <div class="content">
+                            <div class="payment-container" v-loading="loading">
+                                <div class="artistic-title">扫码支付</div>
+                                <el-image :src="imageSrc"
+                                    style="display: block; margin: 0 auto; width: 200px; height: 200px;"></el-image>
+                                <p v-if="orderInfo" style="text-align: center;font-size: 30px;margin: 4px;">
+                                    ￥{{orderInfo.money }}</p>
+                                <p style="color: rgb(255, 119, 0);margin: 2px auto;">注意:（注意输入的金额必须要完全一致）</p>
+                                <p style="text-align: center; font-size: 20px; margin: 3px auto;color: red;">
+                                    {{remainingText }}</p>
+                                <el-divider></el-divider>
+                                <div v-show="showOrderInfo">
+                                    <!-- 这里放你的加载内容 -->
+                                    <p v-if="orderInfo">订单号：{{ orderInfo.order_id }}</p>
+                                    <p v-if="orderInfo">产品名称：{{ orderInfo.product }}</p>
+                                    <p v-if="orderInfo">创建时间：{{ orderInfo.time }}</p>
+                                </div>
+                                <el-button type="primary" plain @click="toggleOrderInfo">{{ showOrderInfo ? '隐藏订单信息'
+                                    :'显示订单信息' }}</el-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="Visibles[2]" class="new-element">
+                        <div class="content">
+                            <el-table row-key="id" :data="tableData" style="width: 100%">
+                                <el-table-column prop="id" label="订单号"></el-table-column>
+                                <el-table-column prop="name" label="产品名称"></el-table-column>
+                                <el-table-column prop="money" label="金额"></el-table-column>
+                                <el-table-column prop="time" label="订单时间"></el-table-column>
+                                <el-table-column prop="tag" label="Tag" width="100">
+                                    <template #default="scope">
+                                        <el-tag :type="{0: 'danger',1: 'success',2: 'warning',3:'info'}[scope.row.tag]"
+                                            disable-transitions>
+                                            {{scope.row.tag === 0 ? '支付超时' :scope.row.tag === 1 ? '支付成功'
+                                            :scope.row.tag=== 2 ? '等待支付':'支付异常'}}
+                                        </el-tag>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            <el-pagination background layout="prev, pager, next" :total="total"
+                                @current-change="PaymentList" />
+                        </div>
+                    </div>
+                    <div v-if="Visibles[3]" class="new-element">
+                        <div class="content center">
+                            <img style="width: 400px" src="static/images/logo.svg"/>
+                            <h1>关于</h1>
+                            <p>个人开发的关于微信赞赏码支付项目</p>
+                            <p>接口文档: http://pay.linxi.tk/docs</p>
+                            <p>Email: admin@linxi.tk</p>
+                        </div>
+                    </div>
+                </el-main>
+            </el-container>
+        </div>
+        <el-backtop :right="100" :bottom="100" />
+    </div>
+    <script>
+        const { createApp, ref, computed } = Vue;
+        const { ElMessage, ElLoading } = ElementPlus;
+        const app = createApp({
+            // 初始化
+            setup() {
+                // 加载状态
+                const loading = ref(false)
+                // 菜单ID
+                const activeIndex = ref('0');
+                // 菜单显示状态列表
+                const Visibles = ref([true, false, false, false])
+                // 订单列表总数
+                const total = ref(0)
+
+                // 订单信息
+                const orderInfo = ref(null);
+                // 订单信息显示状态
+                const showOrderInfo = ref(false);
+                // 订单赞赏码
+                const imageSrc = ref('./static/images/zsm.svg');
+                // 订单列表数据
+                const tableData = ref([])
+                // 订单超时时间 5分钟，以秒为单位
+                const remainingTime = ref(300);
+                // 初始化定时器
+                const timerInterval = ref(null);
+
+                // 消息通知函数
+                const Message = (tips) => { ElMessage({ showClose: true, message: tips }) }
+                const Success = (tips) => { ElMessage({ showClose: true, message: tips, type: 'success', }) }
+                const Warning = (tips) => { ElMessage({ showClose: true, message: tips, type: 'warning', }) }
+                const Error = (tips) => { ElMessage({ showClose: true, message: tips, type: 'error', }) }
+
+                // GET请求函数
+                function Get(url, params, headers) {
+                    return axios.get(url, {
+                        params: params,
+                        headers: { "Authorization": localStorage.getItem('Authorization'), ...headers }
+                    })
+                }
+                // POST请求函数
+                function Post(url, data, headers) {
+                    return axios.post(url, data, {
+                        headers: { "Authorization": localStorage.getItem('Authorization'), ...headers }
+                    })
+                }
+
+                // 低版本浏览器BUG适配
+                Object.fromEntries = function fromEntries(iterable) {
+                    return [...iterable].reduce((obj, [key, val]) => {
+                        obj[key] = val;
+                        return obj;
+                    }, {});
+                };
+
+                // 获取Auth Token 设置Headers
+                function heart() {
+                    Get("http://pay.linxi.tk/")
+                        .then(function (response) {
+                        })
+                        .catch(function (error) {
+                            console.error('连接失败', error);
+                            Error("服务器连接失败!")
+                            return error;
+                        });
+                }
+                heart()
+
+                // 支付数据列表
+                function PaymentList(page) {
+                    try {
+                        if (!Number.isInteger(page)) { page = 1 }
+                        Get("http://pay.linxi.tk/pay_list", { "page": page, "size": 8, "keyword": null })
+                            .then(function (response) {
+                                total.value = response.data.total;
+                                tableData.value = response.data.list;
+                            })
+                            .catch(function (error) {
+                                console.error('支付列表', error);
+                                return error;
+                            });
+                    } catch (error) {
+                        console.log('处理支付列表时出现错误', error);
+                    }
+                }
+
+                // 如果有参数传入则打开支付测试
+                function check(){
+                    const queryString = window.location.search;
+                    const params = new URLSearchParams(queryString);
+
+                    if (params.get('order_id')) {
+                        activeIndex.value = '1'
+                        Visibles.value = [false, true, false, false]
+                        PaymentTest(null, params.get('order_id'))
+                    }
+                }
+                check()
+
+                // 清除URL中的参数
+                function clearParams(paramsObj = null) {
+                    const url = new URL(window.location.href);
+                    const newUrl = url.origin + url.pathname;
+                    const params = new URLSearchParams(url.search);
+                    if (paramsObj) {
+                        for (const key in paramsObj) {
+                            params.set(key, paramsObj[key]);
+                        }
+                        history.pushState({}, document.title, newUrl + '?' + params.toString());
+                    } else {
+                        history.pushState({}, document.title, newUrl);
+                    }
+                }
+
+                //控制显示/隐藏订单
+                const toggleOrderInfo = () => {
+                    showOrderInfo.value = !showOrderInfo.value;
+                };
+
+                // 计算属性，根据剩余时间决定展示的内容
+                const remainingText = computed(() => {
+                    if (remainingTime.value <= 0) {
+                        if(remainingTime.value == -1){
+                            return orderInfo.value.msg
+                        }else{
+                            // 当剩余时间为 0 时，返回订单过期的提示
+                            return '订单过期，请重新生成订单!';
+                        }
+                    } else {
+                        // 否则，返回剩余时间的格式化字符串
+                        const minutes = Math.floor(remainingTime.value / 60);
+                        const seconds = remainingTime.value % 60;
+                        return `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+                    }
+                });
+
+                // 支付测试函数
+                function PaymentTest(index, order_id = null) {
+                    loading.value = true
+                    try {
+                        if (order_id) {
+                            Post("http://pay.linxi.tk/pay_info", { "order_id": order_id })
+                                .then(function (response) {
+                                    if (response.data.code == 200) {
+                                        const orderinfo = {
+                                            money: response.data.pay_order.money,
+                                            order_id: response.data.pay_order.order_id,
+                                            time: response.data.pay_order.time,
+                                            product: response.data.pay_order.product,
+                                            exp: response.data.pay_order.exp,
+                                            msg:response.data.msg
+                                        };
+                                        orderInfo.value = orderinfo
+                                        remainingTime.value = orderInfo.value.exp
+                                        imageSrc.value = './static/images/zsm.svg';
+                                        clearInterval(timerInterval.value)
+                                        timerInterval.value = setInterval(() => PaymentTest(null, orderInfo.value.order_id), 1000);
+                                        // Success(response.data.msg)
+                                    }
+                                    else {
+                                        clearInterval(timerInterval.value)
+                                        if(response.data.pay_order.status == 1){
+                                            imageSrc.value = './static/images/success.svg';
+                                        }else{
+                                            imageSrc.value = './static/images/expire.svg';
+                                        }
+                                        remainingTime.value = -1
+                                        orderInfo.value = {
+                                            msg:response.data.msg,
+                                            money: response.data.pay_order.money,
+                                            order_id: response.data.pay_order.order_id,
+                                            time: response.data.pay_order.time,
+                                            product: response.data.pay_order.product,
+                                        }
+                                        Error(response.data.msg)
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.error('GET 请求失败', error);
+                                });
+                        }
+                        else {
+                            if (!orderInfo.value || !orderInfo.value.exp || orderInfo.value.exp < 0) {
+                                const order_id = new Date().getTime().toString();
+                                Post("http://pay.linxi.tk/pay_order", { "order_id": "ZSMLPay" + order_id, "money": 0.01, "product": "林夕科技测试产品" })
+                                    .then(function (response) {
+                                        if (response.data.code == 200) {
+                                            Success(response.data.msg)
+                                            clearParams({ "order_id": "ZSMLPay" + order_id })
+                                        }
+                                        else {
+                                            Error(response.data.msg)
+                                            imageSrc.value = './static/images/expire.svg';
+                                        }
+                                    })
+                                    .catch(function (error) {
+                                        console.error('请求失败', error);
+                                    });
+                            }
+
+                        }
+                    } catch (error) {
+                        console.log('处理支付列表时出现错误', error);
+                    }
+                    loading.value = false
+                }
+
+                return {
+                    loading, activeIndex, Visibles, total,
+                    orderInfo, showOrderInfo, imageSrc, remainingTime, toggleOrderInfo,remainingText,
+                    Message, Success, Warning, Error,
+                    tableData,
+                    Get, Post, PaymentList, PaymentTest
+                };
+            },
+            methods: {
+                Views(index) {
+                    this.Visibles = [false, false, false, false]
+                    i = parseInt(index);
+                    this.Visibles[i] = true;
+                },
+            }
+        })
+        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+            app.component(key, component)
+        }
+
+        app.use(ElementPlus, { locale: ElementPlusLocaleZhCn });
+        app.mount('#app');
+    </script>
+</body>
+
+</html>
