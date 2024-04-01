@@ -6,7 +6,6 @@ Linxi-PAY 是一个基于微信赞赏码的支付接口平台。它提供了一�
 ## 技术
 前端：Vue3 + Element-Plus3 +Html (手搓的)<br/>
 后端: Python + Flask + Swagger UI<br/>
-预览: http://demo.linxi.tk
 
 ## 特点 🚀
 - **易集成**：只需生成一个微信赞赏码，即可开始接收付款。
