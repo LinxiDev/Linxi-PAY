@@ -6,13 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Element Plus 林夕科技赞赏码</title>
     <!-- 引入 Element Plus 的 CSS 文件 -->
-    <link href="static/css/element-plus.css" rel="stylesheet">
+    <!-- <link href="./static/css/element-plus.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" />
     <!-- 引入 Vue 3 和 Element Plus 的 JavaScript 文件 -->
-    <script src="static/js/vue.js"></script>
-    <script src="static/js/zh-cn.js"></script>
-    <script src="static/js/icons-vue.js"></script>
-    <script src="static/js/axios.min.js"></script>
-    <script src="static/js/element-plus.js"></script>
+    <!-- <script src="./static/js/vue.js"></script> -->
+    <script src="//unpkg.com/vue@3"></script>
+    <!-- <script src="./static/js/zh-cn.js"></script> -->
+    <script src="//unpkg.com/element-plus/dist/locale/zh-cn"></script>
+    <!-- <script src="./static/js/icons-vue.js"></script> -->
+    <script src="//unpkg.com/@element-plus/icons-vue"></script>
+    <!-- <script src="./static/js/axios.min.js"></script> -->
+    <script src="//unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- <script src="./static/js/element-plus.js"></script> -->
+    <script src="//unpkg.com/element-plus"></script>
     <style>
         .flex-grow {
             flex-grow: 1;
@@ -147,7 +153,7 @@
                             <img style="width: 400px" src="static/images/logo.svg"/>
                             <h1>关于</h1>
                             <p>个人开发的关于微信赞赏码支付项目</p>
-                            <p>接口文档: http://pay.linxi.tk/docs</p>
+                            <p>接口文档: http://pay.linxi.gq/docs</p>
                             <p>Email: admin@linxi.tk</p>
                         </div>
                     </div>
@@ -214,7 +220,7 @@
 
                 // 获取Auth Token 设置Headers
                 function heart() {
-                    Get("http://pay.linxi.tk/")
+                    Get("http://pay.linxi.gq/")
                         .then(function (response) {
                         })
                         .catch(function (error) {
@@ -229,7 +235,7 @@
                 function PaymentList(page) {
                     try {
                         if (!Number.isInteger(page)) { page = 1 }
-                        Get("http://pay.linxi.tk/pay_list", { "page": page, "size": 8, "keyword": null })
+                        Get("http://pay.linxi.gq/pay_list", { "page": page, "size": 8, "keyword": null })
                             .then(function (response) {
                                 total.value = response.data.total;
                                 tableData.value = response.data.list;
@@ -266,6 +272,7 @@
                             params.set(key, paramsObj[key]);
                         }
                         history.pushState({}, document.title, newUrl + '?' + params.toString());
+                        location.reload();
                     } else {
                         history.pushState({}, document.title, newUrl);
                     }
@@ -298,7 +305,7 @@
                     loading.value = true
                     try {
                         if (order_id) {
-                            Post("http://pay.linxi.tk/pay_info", { "order_id": order_id })
+                            Post("http://pay.linxi.gq/pay_info", { "order_id": order_id })
                                 .then(function (response) {
                                     if (response.data.code == 200) {
                                         const orderinfo = {
@@ -341,7 +348,7 @@
                         else {
                             if (!orderInfo.value || !orderInfo.value.exp || orderInfo.value.exp < 0) {
                                 const order_id = new Date().getTime().toString();
-                                Post("http://pay.linxi.tk/pay_order", { "order_id": "ZSMLPay" + order_id, "money": 0.01, "product": "林夕科技测试产品" })
+                                Post("http://pay.linxi.gq/pay_order", { "order_id": "ZSMLPay" + order_id, "money": 0.01, "product": "林夕科技测试产品" })
                                     .then(function (response) {
                                         if (response.data.code == 200) {
                                             Success(response.data.msg)
