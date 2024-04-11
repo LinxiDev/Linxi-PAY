@@ -5,20 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Element Plus 林夕科技赞赏码</title>
+    <!-- 离线资源文件 -->
     <!-- 引入 Element Plus 的 CSS 文件 -->
-    <!-- <link href="./static/css/element-plus.css" rel="stylesheet"> -->
-    <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" />
+    <link href="./static/css/element-plus@2.6.3.css" rel="stylesheet">
     <!-- 引入 Vue 3 和 Element Plus 的 JavaScript 文件 -->
-    <!-- <script src="./static/js/vue.js"></script> -->
-    <script src="//unpkg.com/vue@3"></script>
-    <!-- <script src="./static/js/zh-cn.js"></script> -->
-    <script src="//unpkg.com/element-plus/dist/locale/zh-cn"></script>
-    <!-- <script src="./static/js/icons-vue.js"></script> -->
-    <script src="//unpkg.com/@element-plus/icons-vue"></script>
-    <!-- <script src="./static/js/axios.min.js"></script> -->
-    <script src="//unpkg.com/axios/dist/axios.min.js"></script>
-    <!-- <script src="./static/js/element-plus.js"></script> -->
-    <script src="//unpkg.com/element-plus"></script>
+    <script src="./static/js/vue@3.4.21.js"></script>
+    <script src="./static/js/axios@1.6.8.js"></script>
+    <script src="./static/js/icons-vue@2.3.1.js"></script>
+    <script src="./static/js/element-plus@2.6.3.js"></script>
+    <script src="./static/js/element-plus-zh-cn@2.6.3.js"></script>
+    
+    <!-- 在线资源文件 -->
+    <!-- <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <script src="https://unpkg.com/element-plus/dist/locale/zh-cn"></script> -->
     <style>
         .flex-grow {
             flex-grow: 1;
@@ -153,7 +156,7 @@
                             <img style="width: 400px" src="static/images/logo.svg"/>
                             <h1>关于</h1>
                             <p>个人开发的关于微信赞赏码支付项目</p>
-                            <p>接口文档: http://pay.linxi.gq/docs</p>
+                            <p>接口文档: {{server_utl}}/docs</p>
                             <p>Email: admin@linxi.tk</p>
                         </div>
                     </div>
@@ -190,6 +193,8 @@
                 // 初始化定时器
                 const timerInterval = ref(null);
 
+                // 服务器地址
+                const server_utl = "http://31.186.86.47:1231"
                 // 消息通知函数
                 const Message = (tips) => { ElMessage({ showClose: true, message: tips }) }
                 const Success = (tips) => { ElMessage({ showClose: true, message: tips, type: 'success', }) }
@@ -220,7 +225,7 @@
 
                 // 获取Auth Token 设置Headers
                 function heart() {
-                    Get("http://pay.linxi.gq/")
+                    Get(server_utl)
                         .then(function (response) {
                         })
                         .catch(function (error) {
@@ -235,7 +240,7 @@
                 function PaymentList(page) {
                     try {
                         if (!Number.isInteger(page)) { page = 1 }
-                        Get("http://pay.linxi.gq/pay_list", { "page": page, "size": 8, "keyword": null })
+                        Get(server_utl+"/pay_list", { "page": page, "size": 8, "keyword": null })
                             .then(function (response) {
                                 total.value = response.data.total;
                                 tableData.value = response.data.list;
@@ -305,7 +310,7 @@
                     loading.value = true
                     try {
                         if (order_id) {
-                            Post("http://pay.linxi.gq/pay_info", { "order_id": order_id })
+                            Post(server_utl+"/pay_info", { "order_id": order_id })
                                 .then(function (response) {
                                     if (response.data.code == 200) {
                                         const orderinfo = {
@@ -348,7 +353,7 @@
                         else {
                             if (!orderInfo.value || !orderInfo.value.exp || orderInfo.value.exp < 0) {
                                 const order_id = new Date().getTime().toString();
-                                Post("http://pay.linxi.gq/pay_order", { "order_id": "ZSMLPay" + order_id, "money": 0.01, "product": "林夕科技测试产品" })
+                                Post(server_utl+"/pay_order", { "order_id": "ZSMLPay" + order_id, "money": 0.01, "product": "林夕科技测试产品" })
                                     .then(function (response) {
                                         if (response.data.code == 200) {
                                             Success(response.data.msg)
@@ -372,7 +377,7 @@
                 }
 
                 return {
-                    loading, activeIndex, Visibles, total,
+                    loading, activeIndex, Visibles, total,server_utl,
                     orderInfo, showOrderInfo, imageSrc, remainingTime, toggleOrderInfo,remainingText,
                     Message, Success, Warning, Error,
                     tableData,
