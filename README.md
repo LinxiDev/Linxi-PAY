@@ -17,6 +17,3 @@ Linxi-PAY 是一个基于微信赞赏码的支付接口平台。它提供了一�
 ## 技术支持
 暂不公开后端Flask源码，如有需要请联系!
 如有任何疑问或需要帮助，请随时通过 admin@linxi.tk 联系我🌟。
-
-# 💖 赞赏
-<img src="https://github.com/linxi-520/LinxiPush/blob/main/img/yzsm.png" height="232" width="336">
